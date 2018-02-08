@@ -2,7 +2,22 @@
 include('/home/daniel/Desktop/MySQL/signin.php');
 
 # I have no idea what I am doing
-$count = 9;
+$size = $_POST['size'];
+
+if($size == "0")
+{
+	$count = 9;
+}
+
+if($size == "1")
+{
+	$count = 16;
+}
+
+if($size == "2")
+{
+	$count = 25;
+}
 
 #Create Temporary MySQL Table
 $entry = "DROP TEMPORARY TABLE IF EXISTS albums";
@@ -29,7 +44,7 @@ if (!$xml) {
 	exit;
 }
 
-echo "<h1>" . $user . "'s Top 9 Albums for the Past Week </h1>";
+echo "<h1>" . $user . "'s Top " . $count  .  " Albums for the Past Week </h1>";
 
 $artist = $xml->xpath('/lfm/recenttracks/track/artist');
 $album = $xml->xpath('/lfm/recenttracks/track/album');
