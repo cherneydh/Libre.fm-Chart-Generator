@@ -9,9 +9,15 @@
 	</head>
 	<body>
 		<h1>Libre.fm Collage Generator</h1>
-		<form action="/generate.php" method="post">
-			Libre.fm username:
+		<form action="generate.php" method="post">
+			Libre.fm Username:
 			<input type="text" name="user"><br>
+			Collage size:
+			<select id="size" name = "size">
+			<option value = "0">3x3</option>
+			<option value = "1">4x4</option>
+			<option value = "2">5x5</option>
+			</select><br>
 			<br><br>
 			<input type="submit" value="Submit">
 		</form>
