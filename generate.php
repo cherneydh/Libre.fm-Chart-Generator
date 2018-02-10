@@ -1,7 +1,12 @@
 <?php
 include('/home/daniel/Desktop/MySQL/signin.php');
+include('image_resize.php');
 
 # I have no idea what I am doing
+$dest = imagecreatefrompng('template.png');
+imagealphablending($dest, false);
+imagesavealpha($dest, true);
+
 $size = $_POST['size'];
 
 if($size == "0")
@@ -37,8 +42,8 @@ $page = 1;
 $user = $_POST["user"];
 
 #Get XML for past 100 results
-$url = "http://libre.fm/2.0/?method=user.getrecenttracks&user=" . $user . "&page=" . $page . "&limit=100";
-$xml = simplexml_load_file($url);
+#$url = "http://libre.fm/2.0/?method=user.getrecenttracks&user=" . $user . "&page=" . $page . "&limit=100";
+$xml = simplexml_load_file("sample.xml");
 if (!$xml) {
 	echo '<h2>Error trying to retrieve that user\'s data!</h2><br>';
 	exit;
@@ -63,6 +68,36 @@ while($row = mysqli_fetch_assoc($sql)){
 		echo $key . ": " . $val . "<br>";
 	}
 }
+
+############################ INITIALIZE VARIABLES TO DO IMAGE PROCESSING ###########################
+$src = '';
+$resized_src = 'resize.jpeg';
+$resized_dest = '';
+$url = "http://coverartarchive.org/release/a171fb49-0fc1-494d-993b-a8940fef90a7/front";
+$img = 'temp.jpeg';
+file_put_contents($img, file_get_contents($url));
+
+smart_resize_image('temp.jpeg', null, 400, 400, false, $resized_src, false, false, 100);
+file_put_contents($src, file_get_contents($resized_src));
+
+imagecopymerge($dest, $src, 0, 0, 0, 0, 400, 400, 100);
+
+
+############################### PRINT OUT THE FINAL CHART ###########################################
+ob_start();
+imagepng($dest);
+printf('<img src="data:image/png;base64,%s"/>', base64_encode(ob_get_clean()));
+
+
+############################## DESTROY EXCESS IMAGES ###############################################
+imagedestroy($dest);
+imagedestroy($src);
+
+echo "<img><img>";
+
+
+#coverartarchive.org/release/MBID/front
+#https://musicbrainz.org/ws/2/release/?query=release:radio%20amor
 
 $conn->close();
 ?>
