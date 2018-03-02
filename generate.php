@@ -60,28 +60,52 @@ while(list( , $node1) = each($artist)) {
 		mysqli_query( $conn, $entry) or die(mysqli_error($conn)); 
 	}
 }
+$albums = array();
+$artists = array();
 
-$sql = mysqli_query( $conn, "SELECT album,COUNT(*) as count FROM albums GROUP BY album ORDER BY count DESC LIMIT " . $count) or die(mysqli_error($conn));
+$sql = mysqli_query( $conn, "SELECT album FROM albums GROUP BY album ORDER BY COUNT(*) DESC LIMIT " . $count) or die(mysqli_error($conn));
 
 while($row = mysqli_fetch_assoc($sql)){
 	foreach($row as $key => $val){
-		echo $key . ": " . $val . "<br>";
+		array_push($albums, $val);
 	}
 }
 
+$sql = mysqli_query( $conn, "SELECT artist FROM albums GROUP BY artist ORDER BY COUNT(*) DESC LIMIT " . $count) or die(mysqli_error($conn));
+
+while($row = mysqli_fetch_assoc($sql)){
+	foreach($row as $key => $val){
+		array_push($artists, $val);
+	}
+}
+
+$albumKeys = array_keys($albums);
+
+$artistKeys = array_keys($artists);
+
+echo $albums[$albumKeys[0]];
+echo $artists[$artistKeys[0]];
+
 ############################ INITIALIZE VARIABLES TO DO IMAGE PROCESSING ###########################
-$src = '';
 $resized_src = 'resize.jpeg';
-$resized_dest = '';
+$x = 0;
+$y = 0;
+
+while($y<1200){
+$x = 0;
+while($x<1200){
 $url = "http://coverartarchive.org/release/a171fb49-0fc1-494d-993b-a8940fef90a7/front";
 $img = 'temp.jpeg';
 file_put_contents($img, file_get_contents($url));
 
 smart_resize_image('temp.jpeg', null, 400, 400, false, $resized_src, false, false, 100);
-file_put_contents($src, file_get_contents($resized_src));
+$src = imagecreatefromjpeg('resize.jpeg');
 
-imagecopymerge($dest, $src, 0, 0, 0, 0, 400, 400, 100);
-
+imagecopymerge($dest, $src, $x, $y, 0, 0, 400, 400, 100);
+$x = $x + 400;
+}
+$y = $y + 400;
+}
 
 ############################### PRINT OUT THE FINAL CHART ###########################################
 ob_start();
