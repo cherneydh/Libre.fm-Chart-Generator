@@ -51,15 +51,13 @@ if (!$xml) {
 
 echo "<h1>" . $user . "'s Top " . $count  .  " Albums for the Past Week </h1>";
 
-$artist = $xml->xpath('/lfm/recenttracks/track/artist');
-$album = $xml->xpath('/lfm/recenttracks/track/album');
-
-while(list( , $node1) = each($artist)) {
-	while(list( , $node2) = each($album)) {
-		$entry = "INSERT INTO albums VALUES (\"" . $node1 . "\", \"" . $node2 . "\")";
-		mysqli_query( $conn, $entry) or die(mysqli_error($conn)); 
+foreach($xml->children() as $childs) {
+	foreach($childs as $child) {
+		$entry = "INSERT INTO albums VALUES (\"" . $child->artist . "\", \"" . $child->album . "\")";
+		mysqli_query( $conn, $entry) or die(mysqli_error($conn));	
 	}
 }
+
 $albums = array();
 $artists = array();
 
@@ -83,41 +81,41 @@ $albumKeys = array_keys($albums);
 
 $artistKeys = array_keys($artists);
 
-echo $albums[$albumKeys[0]];
-echo $artists[$artistKeys[0]];
-
+for($i = 0; $i < 10; $i++){
+echo $albums[$albumKeys[$i]] . $artists[$artistKeys[$i]] . "<br>";
+}
 ############################ INITIALIZE VARIABLES TO DO IMAGE PROCESSING ###########################
-$resized_src = 'resize.jpeg';
-$x = 0;
-$y = 0;
+#$resized_src = 'resize.jpeg';
+#$x = 0;
+#$y = 0;
 
-while($y<1200){
-$x = 0;
-while($x<1200){
-$url = "http://coverartarchive.org/release/a171fb49-0fc1-494d-993b-a8940fef90a7/front";
-$img = 'temp.jpeg';
-file_put_contents($img, file_get_contents($url));
+#while($y<1200){
+#$x = 0;
+#while($x<1200){
+#$url = "http://coverartarchive.org/release/a171fb49-0fc1-494d-993b-a8940fef90a7/front";
+#$img = 'temp.jpeg';
+#file_put_contents($img, file_get_contents($url));
 
-smart_resize_image('temp.jpeg', null, 400, 400, false, $resized_src, false, false, 100);
-$src = imagecreatefromjpeg('resize.jpeg');
+#smart_resize_image('temp.jpeg', null, 400, 400, false, $resized_src, false, false, 100);
+#$src = imagecreatefromjpeg('resize.jpeg');
 
-imagecopymerge($dest, $src, $x, $y, 0, 0, 400, 400, 100);
-$x = $x + 400;
-}
-$y = $y + 400;
-}
+#imagecopymerge($dest, $src, $x, $y, 0, 0, 400, 400, 100);
+#$x = $x + 400;
+#}
+#$y = $y + 400;
+#}
 
 ############################### PRINT OUT THE FINAL CHART ###########################################
-ob_start();
-imagepng($dest);
-printf('<img src="data:image/png;base64,%s"/>', base64_encode(ob_get_clean()));
+#ob_start();
+#imagepng($dest);
+#printf('<img src="data:image/png;base64,%s"/>', base64_encode(ob_get_clean()));
 
 
 ############################## DESTROY EXCESS IMAGES ###############################################
-imagedestroy($dest);
-imagedestroy($src);
+#imagedestroy($dest);
+#imagedestroy($src);
 
-echo "<img><img>";
+#echo "<img><img>";
 
 
 #coverartarchive.org/release/MBID/front
