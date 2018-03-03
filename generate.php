@@ -61,19 +61,17 @@ foreach($xml->children() as $childs) {
 $albums = array();
 $artists = array();
 
-$sql = mysqli_query( $conn, "SELECT album FROM albums GROUP BY album ORDER BY COUNT(*) DESC LIMIT " . $count) or die(mysqli_error($conn));
+$sql = mysqli_query( $conn, "SELECT album, artist FROM albums GROUP BY album, artist ORDER BY COUNT(*) DESC LIMIT " . $count) or die(mysqli_error($conn));
 
 while($row = mysqli_fetch_assoc($sql)){
+	$j = 0;
 	foreach($row as $key => $val){
-		array_push($albums, $val);
-	}
-}
-
-$sql = mysqli_query( $conn, "SELECT artist FROM albums GROUP BY artist ORDER BY COUNT(*) DESC LIMIT " . $count) or die(mysqli_error($conn));
-
-while($row = mysqli_fetch_assoc($sql)){
-	foreach($row as $key => $val){
-		array_push($artists, $val);
+		if($j % 2 == 0){
+			array_push($albums, $val);
+		}else{
+			array_push($artists, $val);
+		}
+		$j++;
 	}
 }
 
@@ -81,29 +79,35 @@ $albumKeys = array_keys($albums);
 
 $artistKeys = array_keys($artists);
 
-for($i = 0; $i < 10; $i++){
+for($i = 0; $i < 9; $i++){
 echo $albums[$albumKeys[$i]] . $artists[$artistKeys[$i]] . "<br>";
 }
 ############################ INITIALIZE VARIABLES TO DO IMAGE PROCESSING ###########################
-#$resized_src = 'resize.jpeg';
-#$x = 0;
-#$y = 0;
+$resized_src = 'resize.jpeg';
+$x = 0;
+$y = 0;
+$z = 0;
 
-#while($y<1200){
-#$x = 0;
-#while($x<1200){
-#$url = "http://coverartarchive.org/release/a171fb49-0fc1-494d-993b-a8940fef90a7/front";
-#$img = 'temp.jpeg';
-#file_put_contents($img, file_get_contents($url));
+while($y<1200){
+	$x = 0;
+	while($x<1200){
+		#$release = simplexml_load_file("https://musicbrainz.org/ws/2/release/?query=release:" . $albums[$albumKeys[$z]]);	
+		
+		$release = simplexml_load_file("release.xml");
+		
+		$url = "http://coverartarchive.org/release/a171fb49-0fc1-494d-993b-a8940fef90a7/front";
+		$img = 'temp.jpeg';
+		file_put_contents($img, file_get_contents($url));
 
-#smart_resize_image('temp.jpeg', null, 400, 400, false, $resized_src, false, false, 100);
-#$src = imagecreatefromjpeg('resize.jpeg');
+		smart_resize_image('temp.jpeg', null, 400, 400, false, $resized_src, false, false, 100);
+		$src = imagecreatefromjpeg('resize.jpeg');
 
-#imagecopymerge($dest, $src, $x, $y, 0, 0, 400, 400, 100);
-#$x = $x + 400;
-#}
-#$y = $y + 400;
-#}
+		imagecopymerge($dest, $src, $x, $y, 0, 0, 400, 400, 100);
+		$x = $x + 400;
+		$z++;
+	}
+	$y = $y + 400;
+}
 
 ############################### PRINT OUT THE FINAL CHART ###########################################
 #ob_start();
