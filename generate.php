@@ -91,10 +91,21 @@ $z = 0;
 while($y<1200){
 	$x = 0;
 	while($x<1200){
-		#$release = simplexml_load_file("https://musicbrainz.org/ws/2/release/?query=release:" . $albums[$albumKeys[$z]]);	
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt( $ch, CURLOPT_USERAGENT, "Libre.fm-Chart-Generating/0.1 ( dcherney@acm.org )");
+		$query = "http://musicbrainz.org/ws/2/release/?query=release:" . $albums[$albumKeys[$z]];
+		curl_setopt($ch, CURLOPT_URL, $query);
+		$release = curl_exec( $ch );
+		curl_close( $ch );
+		#$release = simplexml_load_file("release.xml");
 		
-		$release = simplexml_load_file("release.xml");
-		
+		if ($release === FALSE) {
+  			echo "cURL Error: " . curl_error($ch);
+		} else {
+			var_dump($release);
+		}	
+
 		$url = "http://coverartarchive.org/release/a171fb49-0fc1-494d-993b-a8940fef90a7/front";
 		$img = 'temp.jpeg';
 		file_put_contents($img, file_get_contents($url));
@@ -110,20 +121,20 @@ while($y<1200){
 }
 
 ############################### PRINT OUT THE FINAL CHART ###########################################
-#ob_start();
-#imagepng($dest);
-#printf('<img src="data:image/png;base64,%s"/>', base64_encode(ob_get_clean()));
+ob_start();
+imagepng($dest);
+printf('<img src="data:image/png;base64,%s"/>', base64_encode(ob_get_clean()));
 
 
 ############################## DESTROY EXCESS IMAGES ###############################################
-#imagedestroy($dest);
-#imagedestroy($src);
+imagedestroy($dest);
+imagedestroy($src);
 
-#echo "<img><img>";
+echo "<img><img>";
 
 
 #coverartarchive.org/release/MBID/front
 #https://musicbrainz.org/ws/2/release/?query=release:radio%20amor
-
+#Libre.fm-Chart-Generating/0.1 ( dcherney@acm.org )
 $conn->close();
 ?>
